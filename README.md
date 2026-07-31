@@ -4,7 +4,7 @@
 
 **Autores:** Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622), Daniel Mendes Vale de Sá (11201921422)
 
-**Disciplina:** Sistemas Digitais Q2.20026
+**Disciplina:** Sistemas Digitais Q2.2026
 
 **Data:** 07/08/2026
 
