@@ -2,11 +2,11 @@
 
 # Tutorial: Implementação de Somador Ponto Flutuante na DE10-Lite
 
-**Autores:** [Nome do Aluno 1], [Nome do Aluno 2], , [Nome do Aluno 3]
+**Autores:** Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622), Daniel Mendes Vale de Sá (11201921422)
 
 **Disciplina:** Sistemas Digitais Q2.20026
 
-**Data:** [Data da entrega]
+**Data:** 07/08/2026
 
 ---
 *Etapa 1*
