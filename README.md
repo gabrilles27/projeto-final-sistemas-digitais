@@ -106,10 +106,10 @@ CORE --> LED
 
 | Recurso | Função |
 |----------|--------|
-| `SW` | Entrada de dados dos operandos |
-| `KEY` | Carga dos operandos e reset |
+| `SW0–SW9` | Entrada de dados dos operandos |
+| `KEY0–KEY1` | Carga dos operandos e reset |
 | `HEX0–HEX5` | Exibição do resultado da operação |
-| `LEDR` | Visualização de sinais internos para validação |
+| `LEDR0–LEDR9` | Visualização de sinais internos para validação |
 
 ## 4. Evidências de Validação
 
