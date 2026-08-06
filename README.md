@@ -142,5 +142,5 @@ Utilizamos o [ChatGPT/Claude/Gemini] para auxiliar na geração do Testbench e n
 
 ## 6. Contribuição dos participantes
  * Daniel Mendes Vale de Sá, Administração do Projeto, Desenvolvimento, implementação e teste de software, Análise Formal
- * Gabrielly Souza Santiago, Redação do manuscrito original, Documentação técnica.
+ * Gabrielly Souza Santiago, Redação do manuscrito original, Documentação técnica
  * Pedro Henrique de Moraes Lui, Redação do manuscrito original, Validação de dados e experimentos
