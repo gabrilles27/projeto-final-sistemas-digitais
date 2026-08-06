@@ -11,11 +11,58 @@
 ---
 *Etapa 1*
 ## 1. Objetivo do Projeto
-Este projeto adapta o somador de ponto flutuante simplificado (13 bits) do livro-texto para a placa Terasic DE10-Lite (MAX 10). O objetivo é demonstrar a síntese lógica e a simulação de hardware usando VHDL.
+O objetivo deste projeto é validar o funcionamento do somador de ponto flutuante simplificado de 13 bits, adaptá-lo para a placa DE10-Lite e verificar, por meio de simulações e testes na FPGA, que as modificações realizadas não alteram a lógica matemática do circuito.
 
 ## 2. Descrição gráfica do funcionamento do sistema
-Usar os elementos necessários para descrever o fucnionamento, isto é, tabelas verdade, diagramas de estados, etc.
-Usar as variáveis de entrada e saída especificadas no VHDL.
+
+O circuito recebe dois operandos em formato de ponto flutuante simplificado e realiza a soma em quatro etapas principais: comparação das magnitudes, alinhamento dos expoentes, soma (ou subtração) das frações e normalização do resultado.
+
+```mermaid
+flowchart LR
+
+A["Entradas
+sign1
+exp1
+frac1
+
+sign2
+exp2
+frac2"]
+
+B["Comparação das Magnitudes"]
+
+C["Alinhamento
+dos Expoentes"]
+
+D["Soma / Subtração"]
+
+E["Normalização"]
+
+F["Saídas
+sign_out
+exp_out
+frac_out"]
+
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+```
+
+### Entradas e saídas
+
+| Sinal | Tipo | Descrição |
+|:------|:----:|:----------|
+| `sign1` | Entrada | Bit de sinal do primeiro operando |
+| `exp1` | Entrada | Expoente do primeiro operando |
+| `frac1` | Entrada | Fração do primeiro operando |
+| `sign2` | Entrada | Bit de sinal do segundo operando |
+| `exp2` | Entrada | Expoente do segundo operando |
+| `frac2` | Entrada | Fração do segundo operando |
+| `sign_out` | Saída | Bit de sinal do resultado |
+| `exp_out` | Saída | Expoente do resultado |
+| `frac_out` | Saída | Fração do resultado |
 
 *Etapa 2*
 ## 3. Adaptações de Hardware (DE10-Lite)
