@@ -69,8 +69,8 @@ O projeto original foi desenvolvido para uma plataforma FPGA diferente da DE10-L
 ### O que mudamos no VHDL original
 
 - **Removemos** o módulo de multiplexação dos displays (`disp_mux`), uma vez que a DE10-Lite possui seis displays de sete segmentos independentes.
-- **Removemos** a interface de teste original, permitindo que os operandos fossem carregados pelo usuário utilizando as chaves (`SW`) e os botões (`KEY`) da DE10-Lite.
-- **Reorganizamos** as entradas para que os operandos sejam carregados utilizando as chaves (`SW`) e os botões (`KEY`) da placa.
+- **Removemos** a interface de teste original e implementamos uma nova interface para carregamento dos operandos utilizando as chaves (`SW`) e os botões (`KEY`) da DE10-Lite.
+- **Reorganizamos** os sinais de entrada para adequá-los ao fluxo de operação da placa, preservando a lógica do somador.
 - **Roteamos** o resultado da operação para os displays de sete segmentos (`HEX0` a `HEX5`) e os sinais auxiliares de validação para os LEDs (`LEDR`).
 - **Adicionamos** um circuito de *debounce* para eliminar o efeito de repique mecânico dos botões durante o carregamento dos operandos.
 
@@ -106,8 +106,8 @@ CORE --> LED
 
 | Recurso | Função |
 |----------|--------|
-| `SW` | Entrada dos operandos |
-| `KEY` | Carga dos registradores e reset |
+| `SW` | Entrada de dados dos operandos |
+| `KEY` | Carga dos operandos e reset |
 | `HEX0–HEX5` | Exibição do resultado da operação |
 | `LEDR` | Visualização de sinais internos para validação |
 
