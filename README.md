@@ -1,6 +1,6 @@
 # Tutorial: Implementação de Somador Ponto Flutuante na DE10-Lite
 
-**Autores:** Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622), Daniel Mendes Vale de Sá (11201921422)
+**Autores:** Daniel Mendes Vale de Sá (11201921422), Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622).
 
 **Disciplina:** Sistemas Digitais Q2.2026
 
@@ -141,7 +141,6 @@ Utilizamos o [ChatGPT/Claude/Gemini] para auxiliar na geração do Testbench e n
 > Como você corrigiu o código gerado para que ele funcionasse na nossa placa e na simulação.
 
 ## 6. Contribuição dos participantes
-Utilize a taxonomia CRediT, seguem exemplos:
- * [Nome do Aluno 1], Administração do Projeto, Desenvolvimento, implementação e teste de software, Análise Formal
- * [Nome do Aluno 2], Validação de dados e experimentos
- * [Nome do Aluno 3], Redação do manuscrito original, Validação de dados e experimentos
+ * Daniel Mendes Vale de Sá, Administração do Projeto, Desenvolvimento, implementação e teste de software, Análise Formal
+ * Gabrielly Souza Santiago, Redação do manuscrito original, Validação de dados e experimentos
+ * Pedro Henrique de Moraes Lui, Redação do manuscrito original, Validação de dados e experimentos
