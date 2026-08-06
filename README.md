@@ -1,5 +1,3 @@
-**template-somadorpf-vhdl**
-
 # Tutorial: Implementação de Somador Ponto Flutuante na DE10-Lite
 
 **Autores:** Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622), Daniel Mendes Vale de Sá (11201921422)
@@ -66,16 +64,52 @@ E --> F
 
 *Etapa 2*
 ## 3. Adaptações de Hardware (DE10-Lite)
-Indicar o que a arquitetura original usava e quais mudanças foram feitas para a implementação na placa
+O projeto original foi desenvolvido para uma plataforma FPGA diferente da DE10-Lite. Para possibilitar sua utilização na placa, foi criada uma nova interface de hardware, preservando a lógica matemática do somador de ponto flutuante e adaptando apenas os módulos responsáveis pela interação com o usuário e pela visualização dos resultados.
 
-**O que mudamos no VHDL original:**
-* Removemos...
-* Roteamos ...
-* Reorganizamos ...
+### O que mudamos no VHDL original
+
+- **Removemos** o módulo de multiplexação dos displays (`disp_mux`), uma vez que a DE10-Lite possui seis displays de sete segmentos independentes.
+- **Removemos** a interface de teste original, permitindo que os operandos fossem carregados pelo usuário utilizando as chaves (`SW`) e os botões (`KEY`) da DE10-Lite.
+- **Reorganizamos** as entradas para que os operandos sejam carregados utilizando as chaves (`SW`) e os botões (`KEY`) da placa.
+- **Roteamos** o resultado da operação para os displays de sete segmentos (`HEX0` a `HEX5`) e os sinais auxiliares de validação para os LEDs (`LEDR`).
+- **Adicionamos** um circuito de *debounce* para eliminar o efeito de repique mecânico dos botões durante o carregamento dos operandos.
 
 **Descrição gráfica do sistema**
-* Caso mudar a descrição gráfica feita no item 2, atualizar aqui.
-* Usar as variáveis de entrada e saída especificadas no VHDL.
+```mermaid
+flowchart LR
+
+SW["SW(9..0)<br/>Dados dos operandos"]
+
+KEY["KEY(0) e KEY(1)<br/>Carga e Reset"]
+
+DB["Debounce"]
+
+REG["Registradores"]
+
+CORE["fp_adder_fixed"]
+
+HEX["HEX0...HEX5<br/>Resultado"]
+
+LED["LEDR<br/>Validação"]
+
+SW --> REG
+KEY --> DB
+DB --> REG
+
+REG --> CORE
+
+CORE --> HEX
+CORE --> LED
+```
+
+### Interface da DE10-Lite
+
+| Recurso | Função |
+|----------|--------|
+| `SW` | Entrada dos operandos |
+| `KEY` | Carga dos registradores e reset |
+| `HEX0–HEX5` | Exibição do resultado da operação |
+| `LEDR` | Visualização de sinais internos para validação |
 
 ## 4. Evidências de Validação
 
