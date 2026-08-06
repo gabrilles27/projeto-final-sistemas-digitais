@@ -15,7 +15,7 @@ O objetivo deste projeto é validar o funcionamento do somador de ponto flutuant
 
 ## 2. Descrição gráfica do funcionamento do sistema
 
-O circuito recebe dois operandos em formato de ponto flutuante simplificado e realiza a soma em quatro etapas principais: comparação das magnitudes, alinhamento dos expoentes, soma (ou subtração) das frações e normalização do resultado.
+O circuito recebe dois operandos em formato de ponto flutuante simplificado de 13 bits e realiza a soma em quatro etapas principais: comparação das magnitudes, alinhamento dos expoentes, soma (ou subtração) das frações e normalização do resultado.
 
 ```mermaid
 flowchart LR
@@ -29,14 +29,14 @@ sign2
 exp2
 frac2"]
 
-B["Comparação das Magnitudes"]
+B["Comparação das Magnitudes (Stage 1)"]
 
 C["Alinhamento
-dos Expoentes"]
+dos Expoentes (Stage 2)"]
 
-D["Soma / Subtração"]
+D["Soma / Subtração (Stage 3)"]
 
-E["Normalização"]
+E["Normalização (Stage 4)"]
 
 F["Saídas
 sign_out
