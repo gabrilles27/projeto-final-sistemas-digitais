@@ -282,21 +282,50 @@ CORE --> LED
 | `LEDR(8)` | Resultado igual a zero |
 | `LEDR(9)` | Overflow do expoente |
 
+Os valores apresentados nos displays de sete segmentos são exibidos em formato hexadecimal. Dessa forma, cada display representa 4 bits do valor correspondente. Por exemplo, uma fração `10100000` é exibida como `A0` nos displays, pois `1010 = A` e `0000 = 0`.
+
 ### Seleção dos campos dos operandos por SW(9 downto 8)
 
 | `SW(9 downto 8)` | Campo carregado                | Dados                      |
 | ---------------- | ------------------------------ | -------------------------- |
-| `00`             | Significando do operando A     | `SW(7 downto 0)`           |
+| `00`             | Fração do operando A           | `SW(7 downto 0)`           |
 | `01`             | Sinal e expoente do operando A | `SW(4)` e `SW(3 downto 0)` |
-| `10`             | Significando do operando B     | `SW(7 downto 0)`           |
+| `10`             | Fração do operando B           | `SW(7 downto 0)`           |
 | `11`             | Sinal e expoente do operando B | `SW(4)` e `SW(3 downto 0)` |
 
 ## 4. Evidências de Validação
 
-### Simulação 
-Abaixo, a imagem do funcionamento do 4º estágio (normalização). Considerar os 4 casos detalhados.
+### Simulação
 
-![Print das Telas do Simulador com as Formas de Onda](link-da-imagem-aqui.jpg)
+Para validar o funcionamento do somador, foram realizados **14 casos de teste dirigidos**. A simulação permite observar as entradas, os sinais internos dos estágios de alinhamento, soma/subtração e normalização, além de comparar diretamente as saídas do núcleo original do livro com as saídas do núcleo adaptado para a DE10-Lite.
+
+![Simulação dos casos de teste no GTKWave](docs/img/waveform_estagios.svg)
+
+**Figura 1 – Comparação entre o somador original e o somador adaptado no GTKWave.**
+
+Entre os casos simulados, destacam-se quatro situações relacionadas ao 4º estágio do circuito, responsável pela normalização:
+
+| Caso | Situação | Resultado observado |
+|:----:|----------|---------------------|
+| `C1` | Carry-out | O sinal `carry_out` é ativado e o resultado é normalizado com o ajuste do expoente. |
+| `C3` | Normalização de 7 casas | `leado = 7`, indicando que a fração precisa ser deslocada 7 posições para a esquerda para ser normalizada. |
+| `C4` | Resultado igual a zero | O sinal `zero` é ativado e o resultado é representado com expoente e fração iguais a zero. |
+| `C6` | Estouro do expoente | O sinal `ovf` é ativado, indicando que o resultado ultrapassou o maior expoente representável. |
+
+### Comparação entre o circuito original e o adaptado
+
+A simulação também compara diretamente as saídas do núcleo original do livro com as saídas do núcleo adaptado para a DE10-Lite.
+
+O sinal `DIVERGEM`, apresentado na parte inferior da simulação, indica os casos em que as duas implementações produzem resultados diferentes.
+
+Essas divergências são esperadas e ocorrem em situações específicas nas quais o circuito adaptado corrige limitações identificadas no circuito original.
+
+| Caso | Situação | Motivo da divergência |
+|:----:|----------|-----------------------|
+| `C4` | Resultado igual a zero | A versão adaptada trata corretamente a representação do resultado nulo. |
+| `C5` | Cancelamento exato | A versão adaptada gera o zero canônico quando os operandos se anulam. |
+| `C6` | Estouro do expoente | A versão adaptada trata o limite máximo do expoente. |
+| `C10` | Zero negativo | A versão adaptada evita a representação do zero com sinal negativo. |
 
 ### Código VHDL Final 
 ```vhdl
