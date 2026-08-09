@@ -327,10 +327,159 @@ Essas divergências são esperadas e ocorrem em situações específicas nas qua
 | `C6` | Estouro do expoente | A versão adaptada trata o limite máximo do expoente. |
 | `C10` | Zero negativo | A versão adaptada evita a representação do zero com sinal negativo. |
 
-### Código VHDL Final 
+### Código VHDL Final
+
+A implementação final mantém o núcleo do somador e adiciona os elementos necessários para sua utilização na DE10-Lite. A seguir são apresentados os principais trechos da adaptação.
+
+#### Carregamento dos operandos
+
+Os operandos são armazenados em registradores. As chaves `SW(9 downto 8)` selecionam qual campo será carregado.
+
 ```vhdl
--- Insira aqui o VHDL final e faça ênfase nos trechos de código mais importantes da sua adaptação, isto é, eles devem estar claramente identificados.
+process(clk)
+begin
+   if rising_edge(clk) then
+      if reset = '1' then
+         a_sign <= A_SIGN_RST;
+         a_exp  <= A_EXP_RST;
+         a_frac <= A_FRAC_RST;
+         b_sign <= B_SIGN_RST;
+         b_exp  <= B_EXP_RST;
+         b_frac <= B_FRAC_RST;
+
+      elsif load_en = '1' then
+         case SW(9 downto 8) is
+            when "00" =>
+               a_frac <= SW(7 downto 0);
+
+            when "01" =>
+               a_sign <= SW(4);
+               a_exp  <= SW(3 downto 0);
+
+            when "10" =>
+               b_frac <= SW(7 downto 0);
+
+            when others =>
+               b_sign <= SW(4);
+               b_exp  <= SW(3 downto 0);
+         end case;
+      end if;
+   end if;
+end process;
 ```
+
+#### Debounce dos botões
+
+Os botões `KEY(0)` e `KEY(1)` passam por um circuito de *debounce*, garantindo que cada pressão seja reconhecida apenas uma vez.
+
+```vhdl
+deb_reset : entity work.debounce
+   generic map (CNT_BITS => DEB_BITS)
+   port map (
+      clk   => clk,
+      reset => '0',
+      din   => key1_press,
+      level => reset,
+      rise  => open,
+      fall  => open
+   );
+
+deb_load : entity work.debounce
+   generic map (CNT_BITS => DEB_BITS)
+   port map (
+      clk   => clk,
+      reset => reset,
+      din   => key0_press,
+      level => open,
+      rise  => load_pulse,
+      fall  => open
+   );
+```
+
+#### Validação dos operandos
+
+Antes de serem enviados ao núcleo do somador, os operandos são verificados. Um operando é válido quando sua fração está normalizada ou quando representa o zero canônico.
+
+```vhdl
+a_ok <= '1' when a_frac(7) = '1'
+                or (a_frac = "00000000" and a_exp = "0000") else '0';
+
+b_ok <= '1' when b_frac(7) = '1'
+                or (b_frac = "00000000" and b_exp = "0000") else '0';
+
+a_sign_eff <= a_sign when a_ok = '1' else '0';
+a_exp_eff  <= a_exp  when a_ok = '1' else "0000";
+a_frac_eff <= a_frac when a_ok = '1' else "00000000";
+
+b_sign_eff <= b_sign when b_ok = '1' else '0';
+b_exp_eff  <= b_exp  when b_ok = '1' else "0000";
+b_frac_eff <= b_frac when b_ok = '1' else "00000000";
+```
+
+#### Conexão com o núcleo do somador
+
+Após o carregamento e a validação, os operandos são enviados ao núcleo `fp_adder_fixed`.
+
+```vhdl
+fp_add_unit : entity work.fp_adder_fixed
+   port map (
+      sign1 => a_sign_eff,
+      sign2 => b_sign_eff,
+
+      exp1  => a_exp_eff,
+      exp2  => b_exp_eff,
+
+      frac1 => a_frac_eff,
+      frac2 => b_frac_eff,
+
+      sign_out => r_sign,
+      exp_out  => r_exp,
+      frac_out => r_frac,
+
+      dbg_exp_diff => d_expdiff,
+      dbg_leado    => d_leado,
+      dbg_carry    => d_carry,
+      dbg_zero     => open,
+      dbg_ovf      => d_ovf
+   );
+```
+
+#### Displays e LEDs de diagnóstico
+
+O resultado é enviado aos displays de sete segmentos e os sinais internos são apresentados nos LEDs para facilitar a validação do circuito.
+
+```vhdl
+HEX5 <= '1' & SSEG_MINUS when r_sign = '1'
+        else '1' & SSEG_BLANK;
+
+u_hex4 : entity work.hex_to_sseg
+   port map (
+      hex  => r_frac(7 downto 4),
+      dp   => '0',
+      sseg => HEX4
+   );
+
+u_hex3 : entity work.hex_to_sseg
+   port map (
+      hex  => r_frac(3 downto 0),
+      dp   => '1',
+      sseg => HEX3
+   );
+
+u_hex2 : entity work.hex_to_sseg
+   port map (
+      hex  => r_exp,
+      dp   => '0',
+      sseg => HEX2
+   );
+
+LEDR(3 downto 0) <= d_expdiff;
+LEDR(6 downto 4) <= d_leado;
+LEDR(7)          <= d_carry;
+LEDR(8)          <= r_is_zero;
+LEDR(9)          <= d_ovf;
+```
+
 *Etapa 3*
 
 ### Funcionamento na Placa
