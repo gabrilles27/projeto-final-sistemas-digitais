@@ -834,6 +834,28 @@ Utilizamos Claude (nível de esforço extra) e ChatGPT (nível de esforço alto)
 - Adição de comentários e cabeçalhos em arquivos de código fonte
 - Revisão e refinamento do relatório (README.md)
 
+**Prompts Utilizados**
+
+Os pedidos abaixo reconstroem, em conteúdo, o que foi solicitado às ferramentas ao longo do projeto. Cada um está ligado a um artefato que ficou no repositório:
+
+> "Escreva um script PowerShell que compile o RTL e os testbenches no GHDL, rode a verificação inteira em sequência e retorne código de saída diferente de zero se qualquer testbench falhar." (`scripts/run_ghdl.ps1`)
+
+> "Verifique se o RTL sintetizável compila também como VHDL-93, porque o Quartus Lite não liga VHDL-2008 por padrão." (passo 0 do mesmo script)
+
+> "Não confie na sua memória para o mapa de pinos da DE10-Lite; confirme contra fonte externa antes de escrever o `.qsf`." (`quartus/fp_adder_de10lite.qsf`)
+
+> "Gere um SVG do painel da placa, com os seis displays e os dez LEDs, a partir da tabela que o testbench de topo grava, para servir de gabarito na conferência da placa real." (`scripts/render_board.ps1` e a Figura 2)
+
+> "Revise o testbench do nível de topo e aponte casos de borda que não estão cobertos, em especial operandos que o formato não define." (casos `N0` a `N3` de `sim/tb_fp_adder_de10lite.vhd`)
+
+> "Escreva cabeçalhos de comentário nos arquivos de RTL explicando o que cada módulo faz e por que ele existe, sem repetir o que o código já diz." (cabeçalhos de `rtl/`)
+
+**Por que adotamos as sugestões**
+
+Adotamos o que conseguimos verificar por conta própria, e a verificação vinha antes da adoção. O script de simulação foi aceito porque falha de forma visível: qualquer testbench que não passe derruba a execução inteira, então o script não tem como mentir sobre o resultado. O saneamento dos operandos foi aceito depois de escrevermos os casos `N0` a `N3` e vermos, na simulação, um operando não normalizado sair com sinal e magnitude errados; a sugestão só entrou no RTL quando o teste que a justificava já existia. Já a primeira versão do mapa de pinos foi recusada exatamente por não vir com fonte, e voltou depois de conferida contra referências externas.
+
+O aprendizado principal foi sobre método, não sobre VHDL: uma sugestão de código só vale o que vale o teste que a acompanha. Foi tentando quebrar as próprias respostas da ferramenta que encontramos o modelo de referência circular, e é por isso que a seção 4 traz um oráculo que calcula a soma pela definição do formato, em vez de repetir os quatro estágios do circuito.
+
 **Análise crítica**
 
 Em algumas situações os modelos se mostraram bastante confiantes, mas entravam em loop de erro, insistindo na mesma abordagem; nesses casos foi preciso interromper e redirecionar o trabalho. Na revisão final do projeto, dois problemas ainda apareceram, e os dois são de método:
