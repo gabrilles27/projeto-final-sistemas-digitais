@@ -1,5 +1,3 @@
-teste
-
 # Tutorial: Implementação de Somador Ponto Flutuante na DE10-Lite
 
 **Autores:** Daniel Mendes Vale de Sá (11201921422), Gabrielly Souza Santiago (11202231242), Pedro Henrique de Moraes Lui (11201722622).
