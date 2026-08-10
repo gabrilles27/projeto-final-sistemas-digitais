@@ -483,7 +483,32 @@ LEDR(9)          <= d_ovf;
 *Etapa 3*
 
 ### Funcionamento na Placa
-Abaixo, imagens do funcionamento na Placa para 4 casos.
+
+Após a validação por simulação, o circuito foi testado na DE10-Lite utilizando os mesmos casos principais do 4º estágio de normalização. Os resultados são apresentados nos displays `HEX`, enquanto os LEDs `LEDR` indicam sinais internos utilizados para diagnóstico.
+
+#### Caso C1 – Carry-out
+
+Neste caso, ocorre carry na soma. O resultado é normalizado com ajuste do expoente e o `LEDR(7)` é acionado.
+
+![Caso C1 na DE10-Lite](docs/images/placa_c1.jpeg)
+
+#### Caso C3 – Normalização de 7 casas
+
+Neste caso, o resultado precisa ser deslocado 7 posições para a esquerda para ser normalizado. Os LEDs `LEDR(6 downto 4)` indicam `111`, correspondente a `leado = 7`.
+
+![Caso C3 na DE10-Lite](docs/images/placa_c3.jpeg)
+
+#### Caso C4 – Resultado igual a zero
+
+Neste caso, o resultado da operação é zero. Os displays apresentam a representação do zero e o `LEDR(8)` é acionado.
+
+![Caso C4 na DE10-Lite](docs/images/placa_c4.jpeg)
+
+#### Caso C6 – Estouro do expoente
+
+Neste caso, o resultado exige um expoente maior que o valor máximo representável. O `LEDR(9)` é acionado para indicar o overflow.
+
+![Caso C6 na DE10-Lite](docs/images/placa_c6.jpeg)
 
 *Etapa 4 (considerando qeu a Etapa 4 considera toda a documentação em si)*
 ## 5. Diário de Bordo de IA 
