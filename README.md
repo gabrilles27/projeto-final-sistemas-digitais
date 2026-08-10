@@ -387,6 +387,52 @@ O resultado exibido nessa condição é `+0.11100000 × 2^4` = +14, ou seja, `HE
 | `10`             | Fração do operando B           | `SW(7 downto 0)`           |
 | `11`             | Sinal e expoente do operando B | `SW(4)` e `SW(3 downto 0)` |
 
+### Exemplo completo: do decimal às chaves e de volta
+
+Para somar `+6` com `+5` na placa, o percurso é o seguinte.
+
+**1. Decimal para o formato normalizado.** Procura-se o expoente `e` que traz o número para a faixa da mantissa, ou seja, tal que o valor dividido por `2^e` fique entre 0,5 e 1. Para o 6:
+
+$$
+6 = 0{,}75 \times 8 = 0{,}75 \times 2^{3}
+$$
+
+Logo `e = 3` e a mantissa é 0,75. Como a fração é a mantissa multiplicada por 256, tem-se `f = 0,75 × 256 = 192`. O mesmo para o 5:
+
+$$
+5 = 0{,}625 \times 8 = 0{,}625 \times 2^{3}
+\qquad\Rightarrow\qquad
+f = 0{,}625 \times 256 = 160
+$$
+
+**2. Formato normalizado para os 13 bits.** O expoente vai para 4 bits e a fração para 8. Os dois números são positivos, então o sinal é `0`:
+
+| Operando | Decimal | Normalizado | `s` | `e` (4 bits) | `f` (8 bits) | `f` em hexa |
+| -------- | ------: | ----------- | :-: | ------------ | ------------ | :---------: |
+| A | +6 | `0,11000000 × 2^3` | `0` | `0011` | `11000000` | `C0` |
+| B | +5 | `0,10100000 × 2^3` | `0` | `0011` | `10100000` | `A0` |
+
+Conferindo pela definição: `192 / 256 × 2³ = 0,75 × 8 = 6` e `160 / 256 × 2³ = 0,625 × 8 = 5`.
+
+**3. Bits para as chaves.** Cada operando é carregado em dois passos, um para a fração e outro para o sinal e o expoente, sempre com `KEY(0)` ao final de cada passo:
+
+| Passo | `SW(9 downto 8)` | `SW(7 downto 0)` | O que carrega |
+| :---: | ---------------- | ---------------- | ------------- |
+| 1 | `00` | `11000000` | Fração de A |
+| 2 | `01` | `xxx0 0011` | Sinal e expoente de A: `SW(4) = 0`, `SW(3 downto 0) = 0011` |
+| 3 | `10` | `10100000` | Fração de B |
+| 4 | `11` | `xxx0 0011` | Sinal e expoente de B |
+
+Nos passos 2 e 4, `SW(7 downto 5)` é ignorado, e o `x` indica que a posição da chave não importa.
+
+**4. Saída de volta ao decimal.** Os displays mostram `b0.4` com `HEX5` apagado. Lendo na ordem `HEX5 HEX4 HEX3. HEX2`: o sinal é positivo, a fração é `B0` em hexadecimal, isto é, `10110000` em binário, e o expoente é `4`. Portanto:
+
+$$
++\frac{176}{256} \times 2^{4} = 0{,}6875 \times 16 = 11
+$$
+
+que é exatamente `6 + 5`. Esse é o caso `C1`, fotografado na seção seguinte.
+
 ## 4. Evidências de Validação
 
 ### Simulação
@@ -422,14 +468,20 @@ Para a inspeção visual, o `tb_fp_adder_waves` executa os 14 casos dirigidos, u
 
 Os mesmos dados estão em `sim/waves/directed_cases.csv`, gravado pelo próprio testbench durante a simulação, e são a fonte do diagrama alternativo em `docs/img/waveform_estagios.svg`. O testbench confere cada caso contra os modelos de referência antes de gravar a tabela: uma figura gerada a partir de saídas erradas não passaria despercebida.
 
-Entre os casos simulados, destacam-se quatro situações relacionadas ao 4º estágio do circuito, responsável pela normalização:
+Os **quatro cenários de normalização** do 4º estágio aparecem nos casos `C1` a `C4`, que reproduzem os quatro exemplos do livro. Cada linha abaixo pode ser conferida na forma de onda pelo valor de `case_id`:
 
-| Caso | Situação | Resultado observado |
-|:----:|----------|---------------------|
-| `C1` | Carry-out | `sum = 352` ultrapassa 8 bits, `carry_dbg` é ativado e o resultado sai normalizado com o expoente incrementado de 3 para 4. |
-| `C3` | Normalização de 7 casas | `sum = 1` e `leado_dbg = 7`, indicando que a fração precisa ser deslocada 7 posições para a esquerda. Como `expb = 9`, o deslocamento cabe e o expoente cai para 2. |
-| `C4` | Resultado pequeno demais, convertido em zero | `leado_dbg = 7` é maior que `expb = 3`, então o resultado não pode ser normalizado e a saída é o zero canônico. |
-| `C6` | Estouro do expoente | Há carry com `expb = 15`: `ovf_dbg` é ativado e o resultado satura no maior valor representável. |
+| Caso | Cenário | Operandos | `sum` | `carry_dbg` | `leado_dbg` | Resultado observado |
+|:----:|---------|-----------|------:|:-----------:|:-----------:|---------------------|
+| `C1` | **Carry-out** | `+6` e `+5` | 352 | `1` | — | A soma ultrapassa 8 bits: a fração é deslocada uma casa à direita e o expoente sobe de 3 para 4, dando `0.B0 × 2^4` = 11. |
+| `C2` | **Normalização de 1 casa** | `+4,25` e `−12` | 124 | `0` | 1 | Subtração com expoentes diferentes: um deslocamento à esquerda basta, o expoente cai de 4 para 3 e o resultado é `−0.F8 × 2^3` = −7,75. |
+| `C3` | **Normalização de 7 casas** | `+256` e `−258` | 1 | `0` | 7 | O cancelamento quase total deixa só o bit menos significativo. Como `expb = 9`, os 7 deslocamentos cabem e o expoente cai para 2, dando `−0.80 × 2^2` = −2. |
+| `C4` | **Pequeno demais, convertido em zero** | `+4` e `−4,03125` | 1 | `0` | 7 | Aqui `leado_dbg = 7` é maior que `expb = 3`: o resultado não pode ser normalizado e a saída é o zero canônico. |
+
+Um quinto caso é destacado por exercitar a correção **[D3]**, que não existe no circuito do livro:
+
+| Caso | Cenário | Operandos | `sum` | `ovf_dbg` | Resultado observado |
+|:----:|---------|-----------|------:|:---------:|---------------------|
+| `C6` | **Estouro do expoente** | `+32 640` e `+32 640` | 510 | `1` | Há carry com `expb = 15`, e o resultado satura no maior valor representável em vez de dar a volta no contador de expoente. |
 
 O cancelamento exato, em que a soma dos significandos dá exatamente zero e `zero_dbg` é ativado, ocorre nos casos `C5` e `C10` — em que os operandos se anulam — e também em `C9`, que soma zero com zero.
 
@@ -805,3 +857,51 @@ Como avaliação geral: as ferramentas aceleraram a parte mecânica (automação
 * **Daniel Mendes Vale de Sá**, Administração do Projeto, Software, Investigação, Redação (revisão e edição).
 * **Gabrielly Souza Santiago**, Conceituação, Análise Formal, Visualização, Redação (rascunho original).
 * **Pedro Henrique de Moraes Lui**, Metodologia, Validação, Curadoria de Dados, Redação (rascunho original).
+
+## Apêndice — Como reproduzir
+
+Todos os comandos abaixo são executados **a partir da raiz do projeto**, porque os testbenches gravam as tabelas de evidência em caminhos relativos.
+
+### Simulação
+
+Requer o [GHDL](https://github.com/ghdl/ghdl/releases) (no Windows, a versão `mcode`). O script localiza o GHDL pelo `PATH` ou pela variável `GHDL_HOME`:
+
+```powershell
+pwsh scripts/run_ghdl.ps1
+```
+
+Em Linux ou macOS, o equivalente é `./scripts/run_ghdl.sh`.
+
+O script executa, nesta ordem: a checagem de que o RTL sintetizável é VHDL-93 válido, os quatro testbenches de verificação e, por último, o `tb_fp_adder_waves`, que regenera as formas de onda e as tabelas `sim/waves/directed_cases.csv` e `sim/waves/board_panel.csv`. O passo de caracterização numérica é o mais demorado, cerca de um minuto, porque percorre todo o espaço de operandos legais; os demais levam poucos segundos. Código de saída `0` significa que tudo passou.
+
+### Formas de onda e figuras
+
+O dump de ondas não é versionado, por ser grande e regenerável: ele é criado pelo último passo do script acima. Feito isso, para abrir as ondas com o layout de sinais já montado:
+
+```powershell
+gtkwave sim/waves/fp_adder_waves.ghw sim/waves/fp_adder_waves.gtkw
+```
+
+As figuras do relatório são geradas a partir das tabelas da simulação, e não desenhadas à mão:
+
+```powershell
+pwsh scripts/capture_gtkwave.ps1   # docs/img/gtkwave_print.png   (Figura 1)
+pwsh scripts/render_board.ps1      # docs/img/painel_esperado.svg (Figura 2)
+pwsh scripts/render_waveform.ps1   # docs/img/waveform_estagios.svg
+```
+
+### Síntese
+
+Requer o Quartus Prime Lite com suporte a MAX 10. O script encontra a instalação sozinho ou usa a variável `QUARTUS_ROOTDIR`:
+
+```powershell
+pwsh scripts/run_quartus.ps1
+```
+
+Ele roda o fluxo completo por linha de comando, sem abrir a interface gráfica, e ao final confere que o Fitter colocou cada pino exatamente onde o `.qsf` mandou. Para trabalhar na interface gráfica, basta abrir `quartus/fp_adder_de10lite.qpf`.
+
+### Gravação na placa
+
+Não é necessário compilar para usar a placa: o arquivo de configuração já está pronto no repositório. Com a DE10-Lite conectada pelo USB-Blaster, abra o **Programmer** do Quartus, selecione `quartus/output_files/fp_adder_de10lite.sof` e clique em *Start*. A configuração é volátil e se perde ao desligar a placa.
+
+Ao energizar, o par de operandos padrão já está carregado e os displays mostram `E0.4`, isto é, `+12 + 2 = +14`. A partir daí, use `SW(9 downto 8)` para escolher o campo, `SW(7 downto 0)` para o dado, `KEY(0)` para carregar e `KEY(1)` para voltar ao padrão, como no exemplo passo a passo da seção 3.
