@@ -1,0 +1,84 @@
+[*] GTKWave save file - somador de ponto flutuante 13 bits
+[*]
+[*] Abrir com:
+[*]   gtkwave sim/waves/fp_adder_waves.ghw sim/waves/fp_adder_waves.gtkw -S sim/waves/zoom_fit.tcl
+[*] ou simplesmente:
+[*]   pwsh scripts/capture_gtkwave.ps1
+[*]
+[*] Observacao: ao abrir um .ghw, o GTKWave renomeia a instancia raiz para "top",
+[*] independentemente do nome da entidade do testbench. Por isso os caminhos aqui
+[*] comecam com "top.tb_fp_adder_waves." - o "top" e um no extra que o GTKWave insere.
+[dumpfile] "fp_adder_waves.ghw"
+[timestart] 0
+[size] 1700 1000
+[pos] -1 -1
+[treeopen] top.
+[sst_width] 250
+[signals_width] 240
+[sst_expanded] 1
+[sst_vpaned_height] 300
+@200
+-ENTRADAS
+@28
+top.tb_fp_adder_waves.sign1
+@22
+top.tb_fp_adder_waves.exp1[3:0]
+top.tb_fp_adder_waves.frac1[7:0]
+@28
+top.tb_fp_adder_waves.sign2
+@22
+top.tb_fp_adder_waves.exp2[3:0]
+top.tb_fp_adder_waves.frac2[7:0]
+@200
+-1o ESTAGIO - ORDENACAO
+@28
+top.tb_fp_adder_waves.dut_orig.signb
+top.tb_fp_adder_waves.dut_orig.signs
+@22
+top.tb_fp_adder_waves.dut_orig.expb[3:0]
+top.tb_fp_adder_waves.dut_orig.exps[3:0]
+top.tb_fp_adder_waves.dut_orig.fracb[7:0]
+top.tb_fp_adder_waves.dut_orig.fracs[7:0]
+@200
+-2o ESTAGIO - ALINHAMENTO
+@22
+top.tb_fp_adder_waves.expdiff_dbg[3:0]
+top.tb_fp_adder_waves.dut_orig.fraca[7:0]
+@200
+-3o ESTAGIO - SOMA/SUBTRACAO
+@22
+top.tb_fp_adder_waves.sum_dbg[8:0]
+@28
+top.tb_fp_adder_waves.carry_dbg
+@200
+-4o ESTAGIO - NORMALIZACAO
+@22
+top.tb_fp_adder_waves.leado_dbg[2:0]
+top.tb_fp_adder_waves.dut_orig.sum_norm[7:0]
+@28
+top.tb_fp_adder_waves.zero_dbg
+top.tb_fp_adder_waves.ovf_dbg
+@200
+-SAIDA - NUCLEO ORIGINAL (livro)
+@28
+top.tb_fp_adder_waves.orig_sign
+@22
+top.tb_fp_adder_waves.orig_exp[3:0]
+top.tb_fp_adder_waves.orig_frac[7:0]
+@200
+-SAIDA - NUCLEO ADAPTADO (DE10-Lite)
+@28
+top.tb_fp_adder_waves.new_sign
+@22
+top.tb_fp_adder_waves.new_exp[3:0]
+top.tb_fp_adder_waves.new_frac[7:0]
+@200
+-DIVERGENCIA ENTRE OS DOIS NUCLEOS
+@28
+top.tb_fp_adder_waves.divergem
+@200
+-CASO EM EXECUCAO
+@22
+top.tb_fp_adder_waves.case_id
+[pattern_trace] 1
+[pattern_trace] 0
